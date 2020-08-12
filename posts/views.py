@@ -1,19 +1,19 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Post, Group
-from django.views.generic import CreateView
-from .forms import PostForm
-from django.urls import reverse_lazy
+from django.shortcuts import render, get_object_or_404, redirect
 
-from django.shortcuts import redirect
+from .forms import PostForm
+from .models import Post, Group
+
 
 def index(request):
     latest = Post.objects.all()[:11]
     return render(request, 'index.html', {'posts': latest})
 
+
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()[:12]
     return render(request, 'group.html', {'group': group, 'posts': posts})
+
 
 def new_post(request):
     if request.method == 'POST':
@@ -22,8 +22,6 @@ def new_post(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            group = form.cleaned_data['group']
-            text = form.cleaned_data['text']
             return redirect('index')
     else:
         form = PostForm()
